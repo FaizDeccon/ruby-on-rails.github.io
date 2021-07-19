@@ -1,11 +1,12 @@
 class ArticlesController < ApplicationController
   before_action :set_article, only: %i[ show edit update destroy ]
 
-  http_basic_authenticate_with name: "dhh", password: "secret", except: [:index, :show]
+  http_basic_authenticate_with name: "user", password: "admin", except: [:index, :show]
 
   # GET /articles or /articles.json
   def index
     @articles = Article.all
+    redirect_to "/users/sign_in" unless user_signed_in?
   end
 
   # GET /articles/1 or /articles/1.json
@@ -14,7 +15,7 @@ class ArticlesController < ApplicationController
 
   # GET /articles/new
   def new
-    @article = Article.new
+    @article = current_user.articles.build
   end
 
   # GET /articles/1/edit
@@ -23,7 +24,7 @@ class ArticlesController < ApplicationController
 
   # POST /articles or /articles.json
   def create
-    @article = Article.new(article_params)
+    @article = current_user.articles.build(article_params)
 
     respond_to do |format|
       if @article.save
